@@ -20,18 +20,19 @@ let currentUsers = {}; //Array to display all current users
 let files = [];
 
 io.on('connection', socket => {
-    //Console log for when a user connects
-    console.log("New connection!");
-
-
-
-
     // For when a user disconnects
     socket.on('disconnect', () => {
         console.log("User disconnected");
         //Remove user
     });
 
+    socket.on('broadcastFile', fileObject, () => {
+
+    })
+
+    socket.on('selectFileBroadcast'. fileObject, () => {
+
+    })
 
     socket.on('joinRoom', roomId, accountId, userName, () => {
         console.log(`Recieved join from ${socket.id}: ${userName}`);
@@ -47,10 +48,10 @@ io.on('connection', socket => {
     });
 
     socket.on('createRoom', roomName, () => {
-        if(!Object.values(rooms).includes(roomName)){
+        let roomNames = Object.values(rooms).map(elem => elem[0]);
+        if(roomNames.includes(roomName)){
             let roomNum = Object.keys(rooms).length;
             socket.join(roomNum);
-
             let roomId = generateUniqueString(Object.keys(rooms));
             rooms[roomId] = [roomName, roomNum];
             socket.emit('roomCreateSuccess', roomId);
