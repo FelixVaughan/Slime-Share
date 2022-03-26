@@ -1,9 +1,12 @@
 //Variables to keep socket.io working correctly
+//Keep in mind, javascript is camelCase kings :)
+
 const path = require('path');
 const express = require('express');
 const socketio = require('socket.io');
 const http = require('http');
-
+let User = require('./user');
+let {generateUniqueString} = require('./utils');
 const app = express();
 const io = socketio(server);
 const server = http.createServer(app);
@@ -12,8 +15,9 @@ const server = http.createServer(app);
 app.use(express.static(path.join(__dirname, 'public')));
 
 //Other variables to help
-let rooms = []; //Array to hold IDs of all active rooms
-let current_users = []; //Array to display all current users
+let rooms = {}; //Array to hold IDs of all active rooms
+let currentUsers = {}; //Array to display all current users
+let files = [];
 
 io.on('connection', socket => {
     //Console log for when a user connects
@@ -29,17 +33,31 @@ io.on('connection', socket => {
     });
 
 
-    socket.on('join', room_id => {
-        console.log("Server processing room join");
-        //If room id exists then join
+    socket.on('joinRoom', roomId, accountId, userName, () => {
+        console.log(`Recieved join from ${socket.id}: ${userName}`);
+        if(Object.keys(rooms).includes(roomId)){
+            let newUser = new User(userName, roomId, socket.id, accountId);
+            currentUsers[socket.id] = newUser; //could have also used newUser.sessionId as the key.
+            socket.join(newUser.roomId);
+            let userNames = Object.entries(currentUsers).map(user => user.name)
+            socket.broadcast.to(newUser.roomId).emit(userNames);
+            socket.emit('intializationMessage', userNames, files);
+        }
         //Else reject
     });
 
-    socket.on('createRoom', room_name => {
-        console.log("Server processing room creation");
-        //Do checks here e.g. if name is valid
-        //If valid then create a room
+    socket.on('createRoom', roomName, () => {
+        if(!Object.values(rooms).includes(roomName)){
+            let roomNum = Object.keys(rooms).length;
+            socket.join(roomNum);
+
+            let roomId = generateUniqueString(Object.keys(rooms));
+            rooms[roomId] = [roomName, roomNum];
+            socket.emit('roomCreateSuccess', roomId);
+        }
+        socket.emit('roomCreateFail', null);
     });
 
 
 });
+

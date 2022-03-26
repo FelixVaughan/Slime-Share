@@ -2,7 +2,7 @@
   "name": "slimeshare",
   "version": "1.0.0",
   "description": "Project for CPSC 513",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -11,10 +11,10 @@
     "url": "git+https://github.com/FelixVaughan/Slime-Share.git"
   },
   "keywords": [],
-  "author": "",
+  "author": "Group 1",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/FelixVaughan/Slime-Share/issues"
-  },
-  "homepage": "https://github.com/FelixVaughan/Slime-Share#readme"
+   "dependencies": {
+    "express": "^4.17.3",
+    "socket.io": "^4.4.1"
+  }
 }
