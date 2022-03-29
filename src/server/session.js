@@ -20,19 +20,7 @@ let currentUsers = {}; //Array to display all current users
 let files = [];
 
 io.on('connection', socket => {
-    // For when a user disconnects
-    socket.on('disconnect', () => {
-        console.log("User disconnected");
-        //Remove user
-    });
-
-    socket.on('broadcastFile', fileObject, () => {
-
-    })
-
-    socket.on('selectFileBroadcast'. fileObject, () => {
-
-    })
+    
 
     socket.on('joinRoom', roomId, accountId, userName, () => {
         console.log(`Recieved join from ${socket.id}: ${userName}`);
