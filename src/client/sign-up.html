@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="stylesheets/style.css">
+    <title>SlimeShare Sign In</title>
+    <script>
+        async function postData(url = '', data = {}) {
+            // Default options are marked with *
+            const response = await fetch(url, {
+                method: 'POST', // *GET, POST, PUT, DELETE, etc.
+                mode: 'cors', // no-cors, *cors, same-origin
+                cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+                credentials: 'same-origin', // include, *same-origin, omit
+                headers: {
+                    'Content-Type': 'application/json'
+                    // 'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                redirect: 'follow', // manual, *follow, error
+                referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+                body: JSON.stringify(data) // body data type must match "Content-Type" header
+            });
+            return response.json(); // parses JSON response into native JavaScript objects
+        }
+
+        window.onload = () => {
+            const serverBaseUrl = 'http://127.0.0.1:3000';
+            let signInButton = document.getElementById("signup-button");
+            let passwordBox = document.getElementById("pass");
+            let usernameBox = document.getElementById("uname");
+            signInButton.addEventListener('click', async (e) => {
+                e.preventDefault();
+                let password = passwordBox.value;
+                let username = usernameBox.value.trim();
+                //do some regex validation before sending to server
+
+                data = {
+                    'username': username,
+                    'password': password,
+                }
+                postData(`http://localhost:8765/${serverBaseUrl}/signUp`, data);
+            })
+        }
+    </script>
+</head>
+
+<body>
+    <div class="topNav" class="py-5">
+        SlimeShare
+    </div>
+    <div class="center-content">
+        <form>
+            <label for="username">User Name:</label>
+            <input type="text" id="uname" name="username" placeholder="username"><br><br>
+            <label for="password">Password: &nbsp;</label>
+            <input type="password" id="pass" name="password" placeholder="password"><br><br>
+            &nbsp;&nbsp;&nbsp;
+            <input type="submit" value="Sign Up" id="signup-button">
+        </form>
+    </div>
+</body>
+
+</html>
