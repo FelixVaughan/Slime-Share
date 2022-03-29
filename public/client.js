@@ -20,25 +20,28 @@ socket.on('upload', () => {
 })
 
 
-// For when a user wants to join a specific room
-socket.on('joinRoom', roomId => {
-    console.log("Clientside to join a room");
+// For when a user has joined the session RIGHT after they log in.
+form.addEventListener('joinSession', (e) => {
+    e.preventDefault();
+    const input_name = e.target.elements.input.value;
+    input_name.trim();
 
-    //Code for joining a room goes here
+    socket.emit('join session');
 
-});
+    e.target.elements.input.value=''; //Probably not needed but just in case.
+})
 
 //This function was for when a user wants to join a room, it just sends a request to the server seeing if a room is available.
 //This function was built assuming that the room id is input through a text field
-form.addEventListener('join', (e) => {
+form.addEventListener('joinRoom', (e) => {
     e.preventDefault();
-    const input_id = e.target.elements.input.value;
+    const input_id = e.target.elements.input.value; //The user will input the id of the room
     input_id.trim();
 
     //Send request to server
     socket.emit('joinRoom', input_id);
 
-    e.target.elements.input.value='';
+    e.target.elements.input.value='';  //Probably not needed but just in case.
 });
 
 //This function is for when a user wants to create a room, it sends a request to the server to create a room.
@@ -50,7 +53,7 @@ form.addEventListener('createRoom', (e) => {
 
     //Send request to server
     socket.emit('createRoom', roomName);
-    e.target.elements.input.value='';
+    e.target.elements.input.value=''; //Probably not needed but just in case.
 
 })
 
