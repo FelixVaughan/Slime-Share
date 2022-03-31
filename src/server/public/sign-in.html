@@ -16,21 +16,28 @@
                 cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
                 credentials: 'same-origin', // include, *same-origin, omit
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Credentials': 'true'
                     // 'Content-Type': 'application/x-www-form-urlencoded',
                 },
                 redirect: 'follow', // manual, *follow, error
                 referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
                 body: JSON.stringify(data) // body data type must match "Content-Type" header
             });
-            let resp = await response.json()
-            console.log(resp)
-            return resp // parses JSON response into native JavaScript objects
+            console.log(response) 
+            if(response.ok === true){
+                window.location = 'http://127.0.0.1:3000/userHomepage'
+            }
         }
 
         window.onload = () => {
             const serverBaseUrl = 'http://127.0.0.1:3000';
             let signInButton = document.getElementById("signin-button");
+            let userContinue = document.getElementById("no-validate");
+            userContinue.addEventListener('click', (e) => {
+                e.preventDefault();
+                window.location='http://localhost:3000/joinsession';
+            })
             let passwordBox = document.getElementById("pass");
             let usernameBox = document.getElementById("uname");
             signInButton.addEventListener('click', async (e) => {
@@ -43,7 +50,7 @@
                     'username': username,
                     'password': password,
                 }
-                postData(`http://localhost:8765/${serverBaseUrl}/signIn`, data);
+                postData(`${serverBaseUrl}/signIn`, data);
             })
         }
     </script>
@@ -60,7 +67,7 @@
             <input type="password" id="pass" name="pass" placeholder="password"><br><br>
             &nbsp;&nbsp;&nbsp;
             <input type="submit" value="Sign In" id="signin-button">
-            <input type="submit" value="Continue without signing in">
+            <input type="submit" value="Continue without signing in" id="no-validate">
         </form>
     </div>
 </body>

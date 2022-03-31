@@ -6,7 +6,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="stylesheets/style.css">
-    <title>SlimeShare Sign In</title>
+    <title>SlimeShare Sign Up</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.26.1/axios.min.js"></script>
     <script>
         async function postData(url = '', data = {}) {
             // Default options are marked with *
@@ -42,7 +43,11 @@
                     'username': username,
                     'password': password,
                 }
-                let resp = await postData(`http://localhost:8765/${serverBaseUrl}/signUp`, data);
+                //let resp = await postData(`http://localhost:8765/${serverBaseUrl}/signUp`, data);
+                let resp = await axios.post(`${serverBaseUrl}/signUp`, data);
+                if(resp.ok === true){
+                    window.location = "http://localhost:3000/signin"
+                }
             })
         }
     </script>
