@@ -1,5 +1,6 @@
 const express = require('express');
 const app = express();
+const path = require('path');
 const bodyParser = require('body-parser');
 const mongoose = require("mongoose");
 let {generateUniqueString} =  require('./utils');
@@ -7,9 +8,9 @@ let {User, File} = require('./models');
 const serverPort = process.argv[2] || 3000;
 const dotenv = require('dotenv');
 dotenv.config();
-
 const mongooseAddr = process.env.MONGOOSE_ADDR;
 
+app.use(express.static(path.join(__dirname, 'public')))
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended: false
@@ -39,7 +40,6 @@ let QueryUser = async (queryObject) => {
 }
 
 app.post('/signUp', async (req, res) => {
-    console.log(req.body);
     let username = req.body.username;
     let password = req.body.password;
     let userData = await QueryUser({name: username});
@@ -48,23 +48,35 @@ app.post('/signUp', async (req, res) => {
         let randomHash = generateUniqueString([]) + generateUniqueString([]); //called twice to create a 2n sized string
         const newUser = new User({name: username, password: password, id: randomHash, files: [], publicFiles: []});
         await newUser.save();
-        res.status(200).send('user created')
+        res.status(200).send('Registered User')
     }
-    
     else {
-        res.send('user already exists')  
+        res.status(400).send('User Already Exists')  
     }
 })
 
-app.post('/signIn', (req, res) => {
+app.get('/signUp', async (req, res) => {
+    res.sendFile('sign-up.html', { root: path.join(__dirname, 'public') });
+})
+
+
+app.get('/signIn', (req, res) => {
+    res.sendFile('sign-in.html', { root: path.join(__dirname, 'public') });
+})
+
+app.get('joinSession', (req, res) => {
+    res.sendFile('room-selection.html', { root: path.join(__dirname, 'public') });
+})
+
+app.post('/signIn', async (req, res) => {
     const username = req.body.username;
     const password = req.body.password;
-    let userData = QueryUser({name: username, password: password});
+    let userData = await QueryUser({name: username, password: password});
     if(userData){ //if no user is found, then null is returned, which is = false. 
-        res.status(200).sendFile('../client/user-homepage.html');
+        res.status(200).json(userData) //sendFile('../client/user-homepage.html');
     }
     else{
-        res.status(404).send('404. Could not Verify User');
+        res.status(400).json({}) //send('404. Could not Verify User');
     }
 })
 
