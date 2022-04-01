@@ -109,6 +109,11 @@ app.get('/joinSession', (req, res) => {
 })
 
 app.post('/joinsession', (req, res) => {
+    sessionName = req.body.sessionName;
+    sessionId = req.body.sessionId;
+    //check to make sure session id is valid and session name is not taken within room.
+    console.log(`session name: ${sessionName}\nsession ID: ${sessionId}`);
+    res.status(200).send('room joined') //not actually yet 
 
 })
 
