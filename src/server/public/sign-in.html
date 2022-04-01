@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="stylesheets/style.css">
     <title>SlimeShare Sign In</title>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.26.1/axios.min.js"></script>
     <script>
         async function postData(url = '', data = {}) {
             // Default options are marked with *
@@ -30,7 +31,7 @@
             }
         }
 
-        window.onload = () => {
+        window.onload = async () => {
             const serverBaseUrl = 'http://127.0.0.1:3000';
             let signInButton = document.getElementById("signin-button");
             let userContinue = document.getElementById("no-validate");
@@ -50,7 +51,11 @@
                     'username': username,
                     'password': password,
                 }
-                postData(`${serverBaseUrl}/signIn`, data);
+                let response = await axios.post(`${serverBaseUrl}/signIn`, data);
+                console.log(response)
+                if(response.status === 200){
+                    window.location = 'http://127.0.0.1:3000/userHomepage'
+                }
             })
         }
     </script>
