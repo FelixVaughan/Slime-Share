@@ -125,7 +125,6 @@ app.post('/signIn', async (req, res) => {
         req.session.loggedIn = true;
         req.session.userData = userData;
         req.session.save();
-        console.log(req.session);
         res.status(200).send(userData);
     }
     else{
