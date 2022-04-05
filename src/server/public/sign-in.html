@@ -52,8 +52,8 @@
                     'password': password,
                 }
                 let response = await axios.post(`${serverBaseUrl}/signIn`, data);
-                console.log(response)
-                if(response.status === 200){
+                console.log(response);
+                if(response.ok === true || response.status === 200){
                     window.location = 'http://127.0.0.1:3000/userHomepage'
                 }
             })
