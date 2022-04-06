@@ -20,6 +20,15 @@ socket.on('upload', () => {
 })
 
 
+socket.on('initializationMessage', () => {
+    console.log("This is the clienside initialization message");
+})
+
+socket.on('roomCreateSucess', roomId => {
+    console.log("Room was created with id" + roomId);
+}) 
+
+
 // For when a user has joined the session RIGHT after they log in.
 form.addEventListener('joinSession', (e) => {
     e.preventDefault();
@@ -33,13 +42,22 @@ form.addEventListener('joinSession', (e) => {
 
 //This function was for when a user wants to join a room, it just sends a request to the server seeing if a room is available.
 //This function was built assuming that the room id is input through a text field
-form.addEventListener('joinRoom', (e) => {
+const joinForm = document.getElementById('joinForm');
+
+joinForm.addEventListener('submit', (e) => {
+    
     e.preventDefault();
-    const input_id = e.target.elements.input.value; //The user will input the id of the room
-    input_id.trim();
+    const usernameInput = joinForm.elements['sessionName'];
+    const sessionId = joinForm.elements['sessionId'];
+
+    const username = usernameInput.value;
+    const roomId = sessionId.value;
+
+    username.trim();
+    roomId.trim();
 
     //Send request to server
-    socket.emit('joinRoom', input_id);
+    socket.emit('joinRoom', sessionId, 1, username);    //Not sure how to send second param, being accountId.
 
     e.target.elements.input.value='';  //Probably not needed but just in case.
 });
@@ -56,4 +74,6 @@ form.addEventListener('createRoom', (e) => {
     e.target.elements.input.value=''; //Probably not needed but just in case.
 
 })
+
+
 

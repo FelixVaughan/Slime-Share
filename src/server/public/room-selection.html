@@ -7,41 +7,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="stylesheets/style.css">
     <title>Room Selection</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.26.1/axios.min.js"></script>
-    <script>
-        window.onload = async () => {
-            const serverBaseUrl = 'http://127.0.0.1:3000';
-            let sessionIdInput = document.getElementById("sessionIdInput");
-            let sessionNameInput = document.getElementById("sessionNameInput");
-            let proceed = document.getElementById("proceedButton");
-            proceed.addEventListener('click', async (e) => {
-                e.preventDefault();
-                let sessionName = sessionNameInput.value.trim();
-                let sessionId = sessionIdInput.value.trim();
-                //do some regex validation before sending to server
-                data = {
-                    'sessionName': sessionName,
-                    'sessionId': sessionId,
-                }
-                let resp = await axios.post(`${serverBaseUrl}/joinSession`, data);
-                if(resp.ok === true){
-                    window.location = "http://localhost:3000/signin"
-                }
-            })
-        }
-    </script>
 </head>
+
 <body>
     <div class="topNav" class="py-5">
         SlimeShare
     </div>
     <div class="center-content">
-        <form>
+        <form id="joinForm">
             <label for="sessionName">Session Name:</label>
-            <input type="text" id="sessionNameInput" name="sessionName" value="Session Username"><br><br>
+            <input type="text" id="sessionName" name="sessionName" value="Session Username"><br><br>
             <label for="sessionId">Session ID: &nbsp; &nbsp;</label>
-            <input type="text" id="sessionIdInput" name="sessionId" value="Enter the ID"><br><br>
-            <input type="submit" id="proceedButton" value="Proceed">
+            <input type="text" id="sessionId" name="sessionId" value="Enter the ID"><br><br>
+            <input type="submit" value="Proceed">
         </form>
     </div>
 </body>
