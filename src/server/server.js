@@ -23,7 +23,7 @@ dotenv.config();
 const mongooseAddr = process.env.MONGOOSE_ADDR;
 
 app.use(cors({
-    origin: 'http://localhost:3000',  //Your Client, do not write '*'
+    origin: 'http://localhost:3000', 
     credentials: true,
 }))
 
@@ -72,16 +72,20 @@ let QueryUser = async (queryObject) => {
 app.post('/signUp', async (req, res) => {
     let username = req.body.username;
     let password = req.body.password;
-    console.log(password)
     let userData = await QueryUser({name: username});
-    if(userData === 'err') res.status(404).send('404. Could not Create a User Account, Perhaps With Different Credentials');
+    if(userData === 'err') {
+        console.log(`Could not register user ${username}=${password}`)
+        res.status(404).send('404. Could not Create a User Account, Perhaps With Different Credentials');
+    }
     if(!userData){ //if no user is returned and an error is not thrown it means that the user does not exist so we can create the user.
         let randomHash = generateUniqueString([]) + generateUniqueString([]); //called twice to create a 2n sized string
         const newUser = new User({name: username, password: password, id: randomHash, files: [], publicFiles: []});
         await newUser.save();
+        console.log(`Registered user ${username}=${password}`)
         res.status(200).send('Registered User')
     }
     else {
+        console.log(`User ${username}=${password} already exists`)
         res.status(400).send('User Already Exists')  
     }
 })
@@ -109,11 +113,6 @@ app.get('/joinSession', (req, res) => {
 })
 
 app.post('/joinsession', (req, res) => {
-    sessionName = req.body.sessionName;
-    sessionId = req.body.sessionId;
-    //check to make sure session id is valid and session name is not taken within room.
-    console.log(`session name: ${sessionName}\nsession ID: ${sessionId}`);
-    res.status(200).send('room joined') //not actually yet 
 
 })
 
@@ -124,8 +123,9 @@ app.post('/signIn', async (req, res) => {
     if(userData){ //if no user is found, then null is returned, which is = false.
         req.session.loggedIn = true;
         req.session.userData = userData;
-        req.session.save();
-        res.status(200).send(userData);
+        await req.session.save();
+        console.log(req.session);
+        res.redirect('/userHomepage');
     }
     else{
         res.status(400).json({});
