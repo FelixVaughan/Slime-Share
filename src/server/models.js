@@ -2,9 +2,16 @@ const mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var FileSchema = new Schema({
+    public: {
+        type: Boolean,
+        default: false,
+    },
     id: String,
     owner: String,
     downloads: Number,
+    name: String, 
+    size: Number,
+    date: Date,
     data: [String], //store as base64
 })
 

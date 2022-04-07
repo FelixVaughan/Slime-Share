@@ -45,6 +45,7 @@ app.use(bodyParser.urlencoded({
 }));
 
 app.set('trust proxy', true);
+app.set('view engine', 'ejs');
 
 (async () => {
     await mongoose.connect(mongooseAddr,{
@@ -91,7 +92,6 @@ app.post('/signUp', async (req, res) => {
 })
 
 app.get('/userHomepage', (req, res) => {
-    console.log(req.session)
     if(req.session.loggedIn){
         console.log('user logged in')
         res.sendFile('user-homepage.html', { root: path.join(__dirname, 'public') })
@@ -124,11 +124,24 @@ app.post('/signIn', async (req, res) => {
         req.session.loggedIn = true;
         req.session.userData = userData;
         await req.session.save();
-        console.log(req.session);
         res.redirect('/userHomepage');
     }
     else{
         res.status(400).json({});
+    }
+
+})
+
+app.get('/userFiles', (req, res) => {
+    if(req.session.loggedIn){
+        symbolicFiles = req.session.userData.files.reduce((acc, file) => {
+            let symbolicData = {name: file.name, id: file.id, size: file.size, date: file.date};
+            return acc.push(symbolicData);  
+        }, [])
+        res.status(200).render('user-files', {files: symbolicFiles});
+    }
+    else{
+        res.status(400).send('Unauthorized');
     }
 })
 
