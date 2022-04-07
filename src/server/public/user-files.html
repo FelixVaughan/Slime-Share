@@ -1,16 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <div class="topNav" class="py-5">
-        SlimeShare
-    </div>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Files</title>
-    <link rel="stylesheet" href="stylesheets/style.css">
+    <link rel="stylesheet" href="stylesheets/files.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.26.1/axios.min.js"></script>
+    <script>
+        window.onload = async () =>{
+            let currentColor = '#ceba08';
+
+            let setColor = () => {
+                if (currentColor === '#ceba08'){
+                    currentColor = '#0b2cc0';
+                    return '#0b2cc0'
+                }
+                currentColor = '#ceba08';
+                return '#ceba08';
+            }
+
+            let resp = await axios.get('http://127.0.0.1:3000/requestFiles');
+            console.log(resp)
+            if (resp.status === 200){
+                let files = resp.data.files;
+                if (files){
+                    let fileDisplay = document.querySelector('#file-display > ul');
+                    files.forEach(file => {
+                        let fileTile = document.createElement('li');
+                        fileTile.textContent = `${file.date}     ${file.size}     ${file.name}\n`
+                        console.log(`${file.date}     ${file.size}     ${file.name}`)
+                        fileTile.style.backgroundColor = setColor();
+                        fileTile.style.color = 'black';
+                        fileTile.style.display = 'block'
+                        fileDisplay.appendChild(fileTile);                        
+                    })
+                }
+                else{
+                    console.log('It appears that you have not saved any files.');
+                }
+            }
+        }
+    </script>
 </head>
 <body>
-    
+    <div class="topNav">
+        SlimeShare
+        <span id="user-nav">
+            <a href="http://127.0.0.1:3000/userFiles">Files</a> <!-- user-files.html -->
+            <a href="room-selection.html">Join Room</a>
+        </span>
+    </div>
+    <div id="file-display" class="left-content"><ul> 
+
+    </ul></div> 
 </body>
 </html>

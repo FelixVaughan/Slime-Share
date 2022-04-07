@@ -134,11 +134,23 @@ app.post('/signIn', async (req, res) => {
 
 app.get('/userFiles', (req, res) => {
     if(req.session.loggedIn){
-        symbolicFiles = req.session.userData.files.reduce((acc, file) => {
+        console.log('here')
+        res.sendFile('user-files.html', {root: path.join(__dirname, 'public')})
+    }
+    else{
+        res.status(400).send('Unauthorized');
+    }
+})
+
+app.get('/requestFiles', (req, res) => {
+    if(req.session.loggedIn){
+        let symbolicFiles = req.session.userData.files.reduce((acc, file) => {
             let symbolicData = {name: file.name, id: file.id, size: file.size, date: file.date};
             return acc.push(symbolicData);  
         }, [])
-        res.status(200).render('user-files', {files: symbolicFiles});
+        //using fake data for now
+        symbolicFiles = [{name: 'file1', id:'n0-id', size: 98763, date:'2022-12-08'}, {name: 'file2', id:'n0-id-2', size: 48328, date:'2019-05-03'}]
+        res.status(200).json({files: symbolicFiles});
     }
     else{
         res.status(400).send('Unauthorized');
