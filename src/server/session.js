@@ -26,23 +26,44 @@ io.on('connection', socket => {
         console.log(`Recieved join from ${socket.id}: ${userName}`);
         if(Object.keys(rooms).includes(roomId)){
             let newUser = new User(userName, roomId, socket.id, accountId);
+
             currentUsers[socket.id] = newUser; //could have also used newUser.sessionId as the key.
             socket.join(newUser.roomId);
+
+            let usersInRoom = getRoomUsers(newUser.roomId);
+
             let userNames = Object.entries(currentUsers).map(user => user.name)
-            socket.broadcast.to(newUser.roomId).emit(userNames);
+
+            io.to(newUser.roomId).emit('roomList', usersInRoom);
+            io.to(newUser.id).emit('displayNames', newUser.roomId);
+
+            // socket.broadcast.to(newUser.roomId).emit(userNames);
             socket.emit('intializationMessage', userNames, files);
             console.log('User has join a room');
+
+        } else {
+            console.log("Fail");
         }
         //Else reject
     });
 
-    socket.on('createRoom', roomName, () => {
+    socket.on('createRoom', roomName, userName, accountId, () => {
         let roomNames = Object.values(rooms).map(elem => elem[0]);
+        let roomNum = Object.keys(rooms).length;
+        let roomId = generateUniqueString(Object.keys(rooms));
+
+        rooms[roomId] = [roomName, roomNum];
+
+        const newUser = userJoin(userName, roomId, socket.id, accountId);
+
+        currentUsers[socket.id] = newUser; //could have also used newUser.sessionId as the key.
+        socket.join(newUser.roomId);
+
+        io.to(newUser.roomId).emit('roomList', usersInRoom);
+        io.to(newUser.id).emit('displayNames', newUser.roomId);
+
         if(roomNames.includes(roomName)){
-            let roomNum = Object.keys(rooms).length;
             socket.join(roomNum);
-            let roomId = generateUniqueString(Object.keys(rooms));
-            rooms[roomId] = [roomName, roomNum];
             socket.emit('roomCreateSuccess', roomId);
             console.log('User has created a room.');
         } else {
@@ -55,10 +76,17 @@ io.on('connection', socket => {
         console.log("User disconnected");
         const user = getUser(socket.id);
         removeUser(user.id);
+        let usersInRoom = getRoomUsers(newUser.roomId);
+        io.to(newUser.roomId).emit('roomList', usersInRoom);
     });
 
 });
 
+//Function to return an array of the users in a certain room.
+//This may not work because currentUsers might not be an array? I just noticed that.
+function getRoomUsers(room) {
+    return currentUsers.filter(user => user.roomId === room);
+}
 
 //Function to add a room to the active_room array.
 // function addRoom(name) {
@@ -80,7 +108,7 @@ function destroyRoom(rid) {
     active_rooms.splice(index,1);
 }
 
-//Function to return a user based on the socket id.
+//Function to return a user based on the socket id. (May have to fix this since it's not an array anymore.)
 function getUser(uid) {
     for (let i in current_users) {
         if (current_users[i].sessionId = uid) {
@@ -107,4 +135,10 @@ function removeUser(id) {
         }
     }
     current_users.splice(index,1);  //Remove the user from that index.
+}
+
+//This function should filter out users that match the room ID that is passed in, and return an array of those users.
+function filterUser(roomId) {
+    let userList = [];
+    return userList.filter(user => user.roomId === roomId);
 }
