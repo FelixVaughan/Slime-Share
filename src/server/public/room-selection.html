@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
+  <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="stylesheets/style.css">
+    <meta name="description" content="Slime Share Home" />
+    <link rel="stylesheet" href="stylesheets/landingPage.css">
+    <link href="dist/css/bootstrap.min.css" rel="stylesheet"/>
     <title>Room Selection</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.26.1/axios.min.js"></script>
     <script>
@@ -30,20 +31,18 @@
             })
         }
     </script>
-</head>
-<body>
-    <div class="topNav" class="py-5">
-        SlimeShare
-    </div>
-    <div class="center-content">
-        <form>
-            <label for="sessionName">Session Name:</label>
-            <input type="text" id="sessionNameInput" name="sessionName" value="Session Username"><br><br>
-            <label for="sessionId">Session ID: &nbsp; &nbsp;</label>
-            <input type="text" id="sessionIdInput" name="sessionId" value="Enter the ID"><br><br>
-            <input type="submit" id="proceedButton" value="Proceed">
+
+    
+  </head>
+  <body style="background-color: #C4C4C4;" class="body">
+    <div class="jumbotron">
+        <form style="top: 50%; padding-left: 20%; padding-right: 20%; position: absolute;" >
+            <label for="sessionName" class="form-label" style="color: white;">Session Name: </label>
+            <input size="50%" type="text" id="sessionNameInput" class="form-control" name="sessionName" aria-describedby="sessionNameHelp" placeholder="Session Username"><br><br>
+            <label for="sessionId" class="form-label" style="color: white;">Session ID: &nbsp; &nbsp;</label>
+            <input size="50%" type="text" id="sessionIdInput" class="form-control" name="sessionId" aria-describedby="sessionIdHelp" placeholder="Enter the ID"><br><br>
+            <input class="btn btn-dark" type="submit" id="proceedButton" value="Proceed">
         </form>
     </div>
-</body>
-
+  </body>
 </html>
