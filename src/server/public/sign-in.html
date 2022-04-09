@@ -9,35 +9,13 @@
     <title>SlimeShare Sign In</title>
    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.26.1/axios.min.js"></script>
     <script>
-        async function postData(url = '', data = {}) {
-            // Default options are marked with *
-            const response = await fetch(url, {
-                method: 'POST', // *GET, POST, PUT, DELETE, etc.
-                mode: 'cors', // no-cors, *cors, same-origin
-                cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-                credentials: 'same-origin', // include, *same-origin, omit
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Access-Control-Allow-Credentials': 'true'
-                    // 'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                redirect: 'follow', // manual, *follow, error
-                referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-                body: JSON.stringify(data) // body data type must match "Content-Type" header
-            });
-            console.log(response) 
-            if(response.ok === true){
-                window.location = 'http://127.0.0.1:3000/userHomepage'
-            }
-        }
-
         window.onload = async () => {
             const serverBaseUrl = 'http://127.0.0.1:3000';
             let signInButton = document.getElementById("signin-button");
             let userContinue = document.getElementById("no-validate");
             userContinue.addEventListener('click', (e) => {
                 e.preventDefault();
-                window.location='http://localhost:3000/joinsession';
+                window.location=`${serverBaseUrl}/joinsession`;
             })
             let passwordBox = document.getElementById("pass");
             let usernameBox = document.getElementById("uname");

@@ -12,7 +12,7 @@ var FileSchema = new Schema({
     name: String, 
     size: Number,
     date: Date,
-    data: [String], //store as base64
+    path: String, 
 })
 
 var UserSchema = new Schema({

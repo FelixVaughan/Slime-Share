@@ -10,7 +10,7 @@ const mongoose = require("mongoose");
 const session = require('express-session');
 const sharedSession = require('express-socket.io-session');
 const cors = require('cors')
-
+const serverAddr = "http://localhost:3000";
 io.use(sharedSession(session, {
     autoSave: true
 }))
@@ -23,7 +23,7 @@ dotenv.config();
 const mongooseAddr = process.env.MONGOOSE_ADDR;
 
 app.use(cors({
-    origin: 'http://localhost:3000', 
+    origin: serverAddr, 
     credentials: true,
 }))
 
@@ -96,7 +96,7 @@ app.get('/userHomepage', (req, res) => {
         console.log('user logged in')
         res.sendFile('user-homepage.html', { root: path.join(__dirname, 'public') })
     }
-    else res.status(400).send('Unauthorized');
+    else res.status(404).send('Unauthorized');
 })
 
 app.get('/signUp', async (req, res) => {
@@ -124,7 +124,8 @@ app.post('/signIn', async (req, res) => {
         req.session.loggedIn = true;
         req.session.userData = userData;
         await req.session.save();
-        res.redirect('/userHomepage');
+        console.log('wtf')
+        res.status(200).redirect('/userHomepage');
     }
     else{
         res.status(400).json({});
@@ -156,6 +157,39 @@ app.get('/requestFiles', (req, res) => {
         res.status(400).send('Unauthorized');
     }
 })
+
+
+app.get('/publicFiles', (req, res) => {
+    let files = await File.find({public: true}, (err, user) => {
+        if(err) {
+            console.log(err);
+            return 'err'
+        };
+        
+    }).clone().catch((err) => console.log(err));
+
+    let generatedLinks = ""
+    files.forEach(file => {
+        let link = `<a href="${serverAddr}/download?id=${file.id}">${file.name}</a><br/>`;
+        generatedLinks = generatedLinks.concat(link);
+    })
+    res.send(generatedLinks);
+})
+
+
+app.get('/download', (req, res) => {
+    let fileId = query.id;
+    let file = await File.findOne({public: true, id: fileId}, (err, user) => {
+        if(err) {
+            console.log(err);
+            return 'err'
+        };
+    }).clone().catch((err) => console.log(err));
+    if(file) res.status(200).download(file.path, file.name); 
+    else res.status(404).send('File not found');
+
+})
+
 
 
 server.listen(serverPort, () => console.log(`Server listening on port ${serverPort}`))
