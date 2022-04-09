@@ -1,3 +1,5 @@
+HTML, BODY { height: 100%; }
+
 .container{
     display: block;
     grid-auto-columns: 1fr;
@@ -14,13 +16,9 @@
     height: 100%;
 }
 
-.body  {
+.body{
     background-image: url('../pictures/SlimeShare2.png');
-
-    /* Full height */
     height: 100%; 
-
-    /* Center and scale the image nicely */
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;

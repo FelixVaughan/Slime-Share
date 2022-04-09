@@ -5,9 +5,11 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="stylesheets/style.css">
+    <meta name="description" content="Slime Share Home"/> 
+    <link rel="stylesheet" href="stylesheets/joinCreatePage.css">
+    <link rel="stylesheet" href="dist/css/bootstrap.min.css" />
     <title>SlimeShare Sign In</title>
-   <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.26.1/axios.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.26.1/axios.min.js"></script>
     <script>
         window.onload = async () => {
             const serverBaseUrl = 'http://127.0.0.1:3000';
@@ -38,19 +40,16 @@
         }
     </script>
 </head>
-<body>
-    <div class="topNav" class="py-5">
-        SlimeShare
-    </div>
-    <div class="center-content">
-        <form>
-            <label for="username">User Name:</label>
-            <input type="text" id="uname" name="username" placeholder="username"><br><br>
-            <label for="pass">Password: &nbsp;</label>
-            <input type="password" id="pass" name="pass" placeholder="password"><br><br>
+<body style="background-color: #C4C4C4;" class="body">
+    <div class="jumbotron">
+        <form style="top: 55%; padding-left: 20%; padding-right: 20%; position: absolute;" >
+            <label for="username" class="form-label">User Name:</label>
+            <input size="50%" class="form-label" type="text" id="uname" name="username" placeholder="username"><br><br>
+            <label for="pass" class="form-label" style="color: black;">Password: &nbsp;</label>
+            <input size="50%" class="form-label" type="password" id="pass" name="pass" placeholder="password"><br><br>
             &nbsp;&nbsp;&nbsp;
-            <input type="submit" value="Sign In" id="signin-button">
-            <input type="submit" value="Continue without signing in" id="no-validate">
+            <input class="btn btn-dark" type="submit" value="Sign In" id="signin-button">
+            <input class="btn btn-dark" type="submit" value="Continue without signing in" id="no-validate">
         </form>
     </div>
 </body>
