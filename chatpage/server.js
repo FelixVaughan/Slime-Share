@@ -7,7 +7,7 @@ const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
 
-let User = require('./user');
+let SessionedUser = require('./user');
 // set static folder
 // app.use(express.static(path.join(__dirname, 'public')));
 
@@ -26,7 +26,6 @@ class room {
 
 let rooms = [{id:"1",name:"room1"}]; //Array to hold IDs of all active rooms
 let currentUsers = []; //Array to display all current users
-let files = [];
 let ids = 2;
 
 //runs when client connects
@@ -49,7 +48,7 @@ io.on('connection', socket =>{
 
         if(roomExist) {
             console.log("WOOOO!");
-            let newUser = new User(userName, roomId, socket.id, accountId);
+            let newUser = new SessionedUser(userName, roomId, socket.id, accountId);
 
             currentUsers.push(newUser);
 
@@ -76,6 +75,10 @@ io.on('connection', socket =>{
        
     });
 
+    socket.on('img-file', (img, filename) => {
+        console.log(img);
+        io.emit('message', img, filename);
+    })
 
     socket.on('createRoom', (roomName, userName, accountId) => {
         //let roomNames = Object.values(rooms).map(elem => elem[0]);
@@ -90,7 +93,7 @@ io.on('connection', socket =>{
 
         console.log(rooms);
 
-        const newUser = new User(userName, roomId, socket.id, accountId);
+        const newUser = new SessionedUser(userName, roomId, socket.id, accountId);
 
         currentUsers.push(newUser); //could have also used newUser.sessionId as the key.
 

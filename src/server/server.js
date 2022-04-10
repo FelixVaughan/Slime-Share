@@ -10,6 +10,9 @@ const mongoose = require("mongoose");
 const session = require('express-session');
 const sharedSession = require('express-socket.io-session');
 const cors = require('cors')
+let rooms = [{id:"1",name:"room1"}]; //Array to hold IDs of all active rooms
+let currentUsers = []; //Array to display all current users
+let ids = 2;
 
 io.use(sharedSession(session, {
     autoSave: true
@@ -17,6 +20,8 @@ io.use(sharedSession(session, {
 
 let {generateUniqueString} =  require('./utils');
 let {User, File} = require('./models');
+let SessionedUser = require('./user');
+
 const serverPort = process.argv[2] || 3000;
 const dotenv = require('dotenv');
 dotenv.config();

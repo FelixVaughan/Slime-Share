@@ -227,6 +227,7 @@
 <script>
     const chatForm = document.getElementById('chat-form');
     const fileForm = document.getElementById('file-form');
+    const input1 = document.querySelector('input[type = "file"]');
     const socket = io();
 
     const { username, roomId, roomName } = Qs.parse(location.search, {
@@ -253,10 +254,11 @@
     const chatMessages = document.querySelector('.chat-messages');
 
     //Message from server
-    socket.on('message', message =>{
-        console.log(message);
+    socket.on('message', (message, filename) => {
+        if (filename){
+            message = `<a href=${message}>${filename}</a>`
+        }
         outputMessage(message);
-
         //scroll down
         chatMessages.scrollTop = chatMessages.scrollHeight;
     });
@@ -276,19 +278,40 @@
         e.target.elements.msg.value.focus();
     });
 
-    //Submit files
     fileForm.addEventListener('submit', e =>{
         e.preventDefault();
 
         //get message
         const msg = e.target.elements.filemsg.value;
+        var filename = msg.replace(/^.*[\\\/]/, '');
+        const reader = new FileReader();
+
+        //file info buffer
+        reader.onload = function (){
+            // const img = new Image();
+            // img.src = reader.result;
+            // document.body.appendChild(img);
+            let result  = reader.result;
+            console.log(result)
+            
+            socket.emit('img-file', result, filename);
+        }
+        //console.log(reader.result);
+        reader.readAsDataURL(input1.files[0]);
+        console.log("The value is: " + msg);
 
         //emit message to server
-        socket.emit('chatMessage', filemsg);
+        function outputMessage(message){
+        const div = document.createElement('div');
+        div.classList.add('message');
+        div.innerHTML = `<a href = pictures/header.jpg download>
+                         <p>${message}</p>
+                     </a>`;
+
+        document.querySelector('.chat-messages').appendChild(div);
+    }
 
         //clear input
-        // e.target.elements.msg.value = '';
-        // e.target.elements.msg.value.focus();
     });
 
     //Output message to dom
