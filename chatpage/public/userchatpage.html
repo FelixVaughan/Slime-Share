@@ -1,5 +1,6 @@
 <!--
     References: https://www.youtube.com/watch?v=TOLiuuOTLzg - for chat and file page design
+    https://www.youtube.com/watch?v=jD7FnbI76Hg&t=2s -- for making the chat app and such
 -->
 
 <!DOCTYPE html>
@@ -10,16 +11,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="stylesheets/chatstyle.css">
     <title>Document</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
 
-        :root {
-            --dark-color-a: gray;
-            --dark-color-b: black;
-            --light-color: #e6e9ff;
-            --success-color: #5cb85c;
-            --error-color: #d9534f;
-        }
+    <style>
+/*---------------------------------------------CSS styling for the chat page-------------------------------------------------------*/
+        @import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
 
         * {
             box-sizing: border-box;
@@ -117,7 +112,7 @@
         .chat-messages .message .meta {
             font-size: 15px;
             font-weight: bold;
-            color: var(--dark-color-b);
+            color: black;
             opacity: 0.7;
             margin-bottom: 7px;
         }
@@ -164,11 +159,6 @@
         .file-box input[type=file] {
             opacity: 0.7;
             padding: 8px 20px;
-            /* font-size: 100px;
-            position: absolute;
-            left: 0;
-            top: 0;
-            opacity: 0; */
         }
         .leave-btn{
             border-radius: 15px;
@@ -177,11 +167,11 @@
             background-color: rgb(65, 63, 63);
             border: 2px solid black; 
         }
-
+/*-----------------------------------------------------CSS styling ends---------------------------------------------------------*/
     </style>
 </head>
 <body>
-
+<!-----------------------------------------------HTML Section---------------------------------------------------------->
     <header class="chat-header">
         <img src="pictures/header.jpg" class = "header-img" alt="Slime Share">
         <a href="index.html" class="leave-btn">Leave Room</a>
@@ -195,16 +185,18 @@
             <h3><i class="fas fa-comments"></i> Room Id:</h3>
             <h2 id="room-id"></h2>
             <h3><i class="fas fa-users"></i> Users</h3>
-            <ul id="users">
-            </ul>
+            <ul id="users"></ul>
+
             <div class = "file-box">
                 <form id = "file-form">
-                <label class="custom-file-upload">
-                <input id = "filemsg" type="file"/>
-                <button class = "upload-btn">Upload a File</button>
+                    <label class="custom-file-upload">
+                    <input  id = "filemsg" type="file"/>
+                    <button class = "upload-btn" download>Upload a File</button>
                 </form>
             </div>
+
         </div>
+
         <div class="chat-messages">
                 <!-- <div class="message"></div> -->
         </div>
@@ -217,22 +209,23 @@
           </form>
         </div>
       </div>
-    
+<script src = "https://cdnjs.cloudflare.com/ajax/libs/qs/6.10.3/qs.min.js"></script>
 <script src = "/socket.io/socket.io.js"></script>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qs/6.10.3/qs.min.js" integrity="sha512-juaCj8zi594KHQqb92foyp87mCSriYjw3BcTHaXsAn4pEB1YWh+z+XQScMxIxzsjfM4BeVFV3Ij113lIjWiC2w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 
-<!--Client Side-->
+<!---------------------------------------------------------------------Client Side--------------------------------------------------->
 <script>
     const chatForm = document.getElementById('chat-form');
     const fileForm = document.getElementById('file-form');
-    const input1 = document.querySelector('input[type = "file"]');
     const socket = io();
+    const input1 = document.querySelector('input[type = "file"]');
 
+    //Parse out the username and room number
     const { username, roomId, roomName } = Qs.parse(location.search, {
     ignoreQueryPrefix: true,
     });
+
 
     if (roomId == undefined) {
         console.log("Creating room");
@@ -241,29 +234,30 @@
         console.log("Joining room");
         socket.emit('joinRoom', roomId, 1, username);
     }
-
+//Display room
     socket.on('displayRoom', (rid,rname) => {
-        console.log("Display Room:" + rid);
         showId(rid, rname);
     })
 
+//Room list
     socket.on('roomList', users => {
         updateList(users);
     }) 
     
     const chatMessages = document.querySelector('.chat-messages');
 
-    //Message from server
-    socket.on('message', (message, filename) => {
-        if (filename){
-            message = `<a href=${message}>${filename}</a>`
-        }
+//Message from server
+    socket.on('message', message =>{
+        console.log(message);
         outputMessage(message);
-        //scroll down
+
+        //scroll down on bttom everytime message is sent
         chatMessages.scrollTop = chatMessages.scrollHeight;
     });
 
-    //Message submit
+
+
+//Message submit
     chatForm.addEventListener('submit', e =>{
         e.preventDefault();
 
@@ -276,14 +270,28 @@
         //clear input
         e.target.elements.msg.value = '';
         e.target.elements.msg.value.focus();
+
+    //     function outputMessage(message){
+    //     const div = document.createElement('div');
+    //     div.classList.add('message');
+    //     div.innerHTML = `<p class="meta">Brad <span>9:12pm</span></p>
+    //         <p> ${message}</p>`;
+    //     // div.innerHTML = `<a href = pictures/header.jpg download>
+    //     //                 <p>${message}</p>
+    //     //             </a>`;
+
+    //     document.querySelector('.chat-messages').appendChild(div);
+    // }
     });
 
+//Submit files
     fileForm.addEventListener('submit', e =>{
         e.preventDefault();
 
         //get message
         const msg = e.target.elements.filemsg.value;
         var filename = msg.replace(/^.*[\\\/]/, '');
+        console.log(Object.keys(input1.files));
         const reader = new FileReader();
 
         //file info buffer
@@ -291,16 +299,18 @@
             // const img = new Image();
             // img.src = reader.result;
             // document.body.appendChild(img);
-            let result  = reader.result;
-            console.log(result)
+            console.log(reader.result);
             
             socket.emit('user-file', result, filename);
+
         }
         //console.log(reader.result);
         reader.readAsDataURL(input1.files[0]);
         console.log("The value is: " + msg);
 
         //emit message to server
+        socket.emit('chatMessage', filename);
+
         function outputMessage(message){
         const div = document.createElement('div');
         div.classList.add('message');
@@ -318,8 +328,10 @@
     function outputMessage(message){
         const div = document.createElement('div');
         div.classList.add('message');
-        div.innerHTML = `<p class="meta">Brad <span>9:12pm</span></p>
-            <p> ${message}</p>`;
+        // div.innerHTML = `<p class="meta">Brad <span>9:12pm</span></p>
+        //     <p> ${message}</p>`;
+        div.innerHTML = `<p class="meta">${message.username} <span>${message.time}</span></p>
+            <p> ${message.text}</p>`;
 
         document.querySelector('.chat-messages').appendChild(div);
     }

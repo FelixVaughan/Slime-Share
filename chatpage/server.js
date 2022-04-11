@@ -1,21 +1,19 @@
+//Variables
 const path = require('path');
 const http = require('http');
 const express = require('express');
 const socketio = require('socket.io');
-
+const formatMessage = require('./utils/messages');
 const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
+const userBot1 = 'Message From Bot';
+const users = null;
 
-let SessionedUser = require('./user');
-// set static folder
-// app.use(express.static(path.join(__dirname, 'public')));
+let User = require('./user');
 
-// app.get('/chatpage', (req, res) => {
-//     res.sendFile('index.html', { root: path.join(__dirname, 'public') });
-// });
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public'))); // to get the direcotry name and load it on localhost
 
 class room {
     constructor (id, name) {
@@ -26,12 +24,13 @@ class room {
 
 let rooms = [{id:"1",name:"room1"}]; //Array to hold IDs of all active rooms
 let currentUsers = []; //Array to display all current users
+let files = [];
 let ids = 2;
 
 //runs when client connects
 io.on('connection', socket =>{
 
-
+//--------------------- When users join room----------------------------------
     socket.on('joinRoom', (roomId, accountId, userName) => {
         console.log(`Recieved join from ${socket.id}: ${userName}`);
 
@@ -47,31 +46,31 @@ io.on('connection', socket =>{
         }
 
         if(roomExist) {
-            console.log("WOOOO!");
-            let newUser = new SessionedUser(userName, roomId, socket.id, accountId);
+            let newUser = new User(userName, roomId, socket.id, accountId);
 
             currentUsers.push(newUser);
+
+            socket.broadcast.to(newUser.roomId).emit('message', formatMessage(userBot1,`${newUser.name} has joined the chat`)); // display the users that joined the chat
+
 
             socket.join(newUser.roomId);
 
             let usersInRoom = getRoomUsers(newUser.roomId);
 
-            //let userNames = Object.entries(currentUsers).map(user => user.name)
-
-            //console.log(usersInRoom);
-
             io.to(newUser.roomId).emit('roomList', usersInRoom);
             io.to(newUser.sessionId).emit('displayRoom', roomId, currentRoom.name);
 
-            console.log(currentUsers);
-            // socket.broadcast.to(newUser.roomId).emit(userNames);
-            //socket.emit('intializationMessage', userNames, files);
+         
             console.log('User has join a room');
+
 
         } else {
             console.log("Failure");
             //Maybe prompt the user?
         }
+
+        socket.emit('message', formatMessage(userBot1, 'Welcome to Slime share!')); // welcome message when user joins
+
        
     });
 
@@ -80,22 +79,20 @@ io.on('connection', socket =>{
         io.emit('message', userfile, filename);
     })
 
+//--------------------- Create a room ------------------------------------------
     socket.on('createRoom', (roomName, userName, accountId) => {
-        //let roomNames = Object.values(rooms).map(elem => elem[0]);
-        //let roomId = generateUniqueString(Object.keys(rooms));
         let roomId = ids.toString();
         ids = ids+1;
 
-        console.log(rooms);
 
         let newRoom = addRoom(roomId,roomName);
         rooms.push(newRoom);
 
-        console.log(rooms);
 
-        const newUser = new SessionedUser(userName, roomId, socket.id, accountId);
 
-        currentUsers.push(newUser); //could have also used newUser.sessionId as the key.
+        const newUser = new User(userName, roomId, socket.id, accountId);
+
+        currentUsers.push(newUser); 
 
         let usersInRoom = getRoomUsers(newUser.roomId);
 
@@ -105,34 +102,50 @@ io.on('connection', socket =>{
         io.to(newUser.sessionId).emit('displayRoom', roomId, roomName);
     });
 
-
-
-    socket.emit('message', 'Welcome to Slime share!');
-
-    //Broadcast when a user connects
-    socket.broadcast.emit('message', 'A user has joined the chat'); //everyone but the client
-
-    //run when client disconnected
-    socket.on('disconnect', () => {
-        console.log("User disconnected");
-        // console.log(currentUsers);
-        const user = getUser(socket.id);
-        // console.log(currentUsers);
-        removeUser(user.sessionId);
-        let usersInRoom = getRoomUsers(user.roomId);
-        io.to(user.roomId).emit('roomList', usersInRoom);
-        io.emit('message', 'A user has left the chat');
-     });
-
-    //Listen for chat message
-    socket.on('chatMessage', (msg) =>{
-        
-        io.emit('message', msg);
+    socket.on('img-file', data =>{
+        console.log(data);
+        //socket.emit('img-file', data);
     });
 
 
 
+
+//--------------------- Listen/display for chat message ------------------------------------------
+    socket.on('chatMessage', (msg) =>{
+        const user = getUser(socket.id);
+
+        io.to(user.roomId).emit('message', formatMessage(user.name ,msg)); // display the message in text
+    });
+
+//--------------------- run when client disconnected ------------------------------------------
+     socket.on('disconnect', () => {
+        console.log("User disconnected");
+        const user = getUser(socket.id);
+        console.log("user: ");
+        console.log(user);
+        if(typeof user !== 'undefined'){
+            removeUser(user.sessionId);
+            let usersInRoom = getRoomUsers(user.roomId);
+            io.to(user.roomId).emit('roomList', usersInRoom);
+            socket.broadcast.to(user.roomId).emit('message', formatMessage(userBot1,`${user.name} has left the chat`)); // display the users that joined the chat
+        }
+
+        // if(typeof users.roomId !== 'undefined'){
+        //     let usersInRoom = getRoomUsers(user.roomId);
+        // io.to(user.roomId).emit('roomList', usersInRoom);
+        // }
+        // let usersInRoom = getRoomUsers(user.roomId);
+        // io.to(user.roomId).emit('roomList', usersInRoom);
+
+        //Display the message that user has left the chat
+        // socket.broadcast.to(user.roomId).emit('message', formatMessage(userBot1,`${user.name} has left the chat`)); // display the users that joined the chat
+     });
+
 });
+
+
+
+// ------------------------------------------ FUNCTIONS ---------------------------------------------------------------
 
 //Function to return an array of the users in a certain room.
 //This may not work because currentUsers might not be an array? I just noticed that.
@@ -143,6 +156,11 @@ function getRoomUsers(room) {
 function addRoom(id, name) {
     return {id, name};
 }
+
+// //made nav
+// function getCurrentUser(id){
+//     return currentUsers.find(user => user.id == id);
+// }
 
 //Function to return a user based on the socket id. (May have to fix this since it's not an array anymore.)
 function getUser(uid) {
@@ -162,7 +180,7 @@ function removeUser(id) {
             break;
         }
     }
-    console.log(currentUsers[index]);
+
     currentUsers.splice(index,1);  //Remove the user from that index.
 }
 
@@ -172,6 +190,6 @@ function filterUser(roomId) {
     return userList.filter(user => user.roomId === roomId);
 }
 
-const PORT = 3000 || process.env.PORT;
+const PORT = 3000 || process.env.PORT; // making port number
 
-server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`)); // Listen on port number 3000
