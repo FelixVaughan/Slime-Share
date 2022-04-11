@@ -10,7 +10,6 @@ const mongoose = require("mongoose");
 const dotenv = require('dotenv');
 dotenv.config();
 
-console.log(`key is ${process.env.SESSION_KEY}`)
 const session = require("express-session")({
     secret: process.env.SESSION_KEY,
     resave: true,
@@ -28,10 +27,11 @@ let rooms = [{
 }]; //Array to hold IDs of all active rooms
 let currentUsers = []; //Array to display all current users
 let ids = 2;
+let files = [];
 
 io.use(sharedSession(session, {
-    autoSave:true
-})); 
+    autoSave: true
+}));
 
 let {
     generateUniqueString
@@ -72,7 +72,7 @@ app.set('trust proxy', true);
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error: "));
 db.once("open", () => {
-    console.log(`Server connected DB establised on ${mongooseAddr}`);
+    //console.log(`Server connected DB establised on ${mongooseAddr}`);
 });
 
 
@@ -85,6 +85,35 @@ let QueryUser = async (queryObject) => {
         return user;
     }).clone().catch((err) => console.log(err));
 }
+
+let saveFiles = () => {
+    files.forEach(([data, filename]) => {
+        const newFile = new File({
+            id: String((Math.random() + 1).toString(36).substring(9)),
+            name: filename,
+            data: data
+        });
+        newFile.save(); //await
+    })
+}
+
+app.get('/saveFiles', (req, res) => {
+    saveFiles();
+    res.send('Files saved');
+})
+
+app.get('/fileMonitor', (req, res) => {
+    let filename = req.query.file;
+    File.findOne({name: filename}, (err, file) => {
+        if (err) console.log(err);
+        else {
+            if (file.downloads) file.downloads += 1;
+            else file.downloads = 1;
+            file.save();
+        }
+    }).clone().catch((err) => console.log(err));
+    res.sendStatus(200);
+})
 
 app.get('/', (req, res) => {
     res.sendFile('index.html', {
@@ -129,13 +158,14 @@ app.post('/signUp', async (req, res) => {
 })
 
 app.get('/userHomepage', (req, res) => {
-    console.log(req.session)
     if (req.session.loggedIn) {
         console.log('user logged in')
         res.sendFile('user-homepage.html', {
             root: path.join(__dirname, 'public')
         });
-    } else res.status(400).send('Unauthorized');
+    } else {
+        res.status(400).send('unauthorized');
+    }
 })
 
 app.get('/signUp', async (req, res) => {
@@ -157,6 +187,34 @@ app.get('/joinSession', (req, res) => {
     });
 })
 
+app.get('/viewFiles', (req, res) => {
+    res.sendFile('view-files.html', {
+        root: path.join(__dirname, 'public')
+    });
+})
+
+app.get('/getFiles', async (req, res) => {
+    let files = await File.find({}, (err, files) => {
+        if (err) {
+            console.log(err);
+            return -1;
+        } else return files;
+    }).clone().catch((err) => console.log(err));
+    if (files === -1) return res.send('Could not fetch files');
+    let fileRepresentations = files.map(file => {
+        let filename = file.name;
+        let data = file.data;
+        let downloads = file.downloads;
+        return {
+            name: filename,
+            data: data,
+            downloads: downloads
+        };
+    })
+
+    return res.json(fileRepresentations);
+})
+
 app.post('/joinsession', (req, res) => {
     sessionName = req.body.sessionName;
     sessionId = req.body.sessionId;
@@ -165,6 +223,7 @@ app.post('/joinsession', (req, res) => {
     res.status(200).send('room joined') //not actually yet 
 
 })
+
 
 app.post('/signIn', async (req, res) => {
     const username = req.body.username;
@@ -176,8 +235,8 @@ app.post('/signIn', async (req, res) => {
     if (userData) { //if no user is found, then null is returned, which is = false.
         req.session.loggedIn = true;
         req.session.userData = userData;
-        req.session.save();
-        res.status(200).send(userData);
+        await req.session.save();
+        res.status(200).redirect('/userHomePage')
     } else {
         res.status(400).json({});
     }
@@ -204,11 +263,8 @@ io.on('connection', socket => {
         if (roomExist) {
             console.log("WOOOO!");
             let newUser = new SessionedUser(userName, roomId, socket.id, accountId);
-
             currentUsers.push(newUser);
-
             socket.join(newUser.roomId);
-
             let usersInRoom = getRoomUsers(newUser.roomId);
 
             //let userNames = Object.entries(currentUsers).map(user => user.name)
@@ -230,9 +286,10 @@ io.on('connection', socket => {
 
     });
 
-    socket.on('img-file', (img, filename) => {
-        console.log(img);
-        io.emit('message', img, filename);
+    socket.on('user-file', (userfile, filename) => {
+        files.push([userfile, filename]);
+        console.log(`Added ${filename} to file pile`);
+        io.emit('message', userfile, filename);
     })
 
     socket.on('createRoom', (roomName, userName, accountId) => {

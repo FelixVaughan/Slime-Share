@@ -75,9 +75,9 @@ io.on('connection', socket =>{
        
     });
 
-    socket.on('img-file', (img, filename) => {
-        console.log(img);
-        io.emit('message', img, filename);
+    socket.on('user-file', (userfile, filename) => {
+        console.log(userfile);
+        io.emit('message', userfile, filename);
     })
 
     socket.on('createRoom', (roomName, userName, accountId) => {

@@ -293,8 +293,7 @@
             // document.body.appendChild(img);
             let result  = reader.result;
             console.log(result)
-            
-            socket.emit('img-file', result, filename);
+            socket.emit('user-file', result, filename);
         }
         //console.log(reader.result);
         reader.readAsDataURL(input1.files[0]);

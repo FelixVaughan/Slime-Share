@@ -311,7 +311,7 @@
             // document.body.appendChild(img);
             console.log(reader.result);
             
-            socket.emit('img-file', reader.result);
+            socket.emit('user-file', reader.result);
         }
         //console.log(reader.result);
         reader.readAsDataURL(input1.files[0]);
