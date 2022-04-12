@@ -1,3 +1,5 @@
+const moment = require('moment');
+
 let generateUniqueString = (cannotInclude) => {
     let generateRandomString = () =>  {
         let randomString = '';
@@ -16,5 +18,14 @@ let generateUniqueString = (cannotInclude) => {
 }
 
 
+function formatMessage(username, text){
+    return{
+        username,
+        text,
+        time: moment().format('h:mm a')
 
-module.exports = {generateUniqueString}
+    }
+}
+
+
+module.exports = {generateUniqueString, formatMessage}

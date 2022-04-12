@@ -3,17 +3,18 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <link rel="stylesheet" href="stylesheets/joinCreatePage.css">
+    <link rel="stylesheet" href="dist/css/bootstrap.min.css"/>    
+    <title>SlimeShare</title>
 </head>
-<body>
-    <h1>Join a room</h1>
-
-    <form id="joinRoom" action="/userchatpage">
-        <label for="username">Username:</label><br>
-        <input type="text" name="username" id="username"/><br>
-        <label for="roomId">RoomId:</label><br>
-        <input type="text" name="roomId" id="roomId"><br>
-        <button type="submit">Join Room</button>
+<body style="background-color: #C4C4C4;" class="body">
+    <form style="top: 50%; margin-left: 25%; margin-right: 25%; position: absolute; text-align: center;" id="joinRoom" action="/userchatpage">
+        <h1>Join A Room</h1>
+        <label style="text-align: left;" for="username" class="form-label">Username</label><br>
+        <input size="50%" class="form-control" type="text" name="username" id="username" placeholder="Username"/><br>
+        <label style="text-align: left;" for="roomId" class="form-label">Room Id</label><br>
+        <input size="50%" class="form-control" type="text" name="roomId" id="roomId" placeholder="Room ID"><br>
+        <button class="btn btn-dark" type="submit">Join Room</button>
     </form>
 </body>
 </html>

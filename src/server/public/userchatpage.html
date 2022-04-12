@@ -4,6 +4,7 @@
 
 <!DOCTYPE html>
 <html>
+
 <head>
     <!-- <meta charset="UTF-8"> -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -65,6 +66,7 @@
             overflow: hidden;
 
         }
+
         .chat-header {
             background: rgb(55, 55, 55);
             color: #fff;
@@ -109,7 +111,7 @@
         .chat-messages .message {
             padding: 10px;
             margin-bottom: 15px;
-            border: 2px solid  black;
+            border: 2px solid black;
             background-color: rgb(181, 177, 177);
             border-radius: 10px;
         }
@@ -141,19 +143,20 @@
             height: 40px;
             flex: 1;
         }
-        .input{
+
+        .input {
             border-radius: 15px;
             border: 2px solid black;
         }
 
-        .file-box{
+        .file-box {
             position: relative;
             overflow: hidden;
             display: inline-block;
             background: black;
         }
 
-        .upload-btn{
+        .upload-btn {
             border-radius: 10px;
             padding: 8px 20px;
             color: gray;
@@ -170,188 +173,200 @@
             top: 0;
             opacity: 0; */
         }
-        .leave-btn{
+
+        .leave-btn {
             border-radius: 15px;
             padding: 8px 20px;
             color: gray;
             background-color: rgb(65, 63, 63);
-            border: 2px solid black; 
+            border: 2px solid black;
         }
-
     </style>
 </head>
+
 <body>
 
     <header class="chat-header">
-        <img src="pictures/header.jpg" class = "header-img" alt="Slime Share">
+        <img src="pictures/header.jpg" class="header-img" alt="Slime Share">
         <a href="index.html" class="leave-btn">Leave Room</a>
-      </header>
+    </header>
     <!--Header section-->
     <div class="chat-container">
         <main class="chat-main">
-          <div class="chat-sidebar">
-            <h3><i class="fas fa-comments"></i> Room Name:</h3>
-            <h2 id="room-name"></h2>
-            <h3><i class="fas fa-comments"></i> Room Id:</h3>
-            <h2 id="room-id"></h2>
-            <h3><i class="fas fa-users"></i> Users</h3>
-            <ul id="users">
-            </ul>
-            <div class = "file-box">
-                <form id = "file-form">
-                <label class="custom-file-upload">
-                <input id = "filemsg" type="file"/>
-                <button class = "upload-btn">Upload a File</button>
-                </form>
+            <div class="chat-sidebar">
+                <h3><i class="fas fa-comments"></i> Room Name:</h3>
+                <h2 id="room-name"></h2>
+                <h3><i class="fas fa-comments"></i> Room Id:</h3>
+                <h2 id="room-id"></h2>
+                <h3><i class="fas fa-users"></i> Users</h3>
+                <ul id="users">
+                </ul>
+                <div class="file-box">
+                    <form id="file-form">
+                        <label class="custom-file-upload">
+                            <input id="filemsg" type="file" />
+                            <button class="upload-btn">Upload a File</button>
+                    </form>
+                </div>
             </div>
-        </div>
-        <div class="chat-messages">
+            <div class="chat-messages">
                 <!-- <div class="message"></div> -->
-        </div>
+            </div>
         </main>
         <div class="chat-form-container">
-          <form id="chat-form">
-            <input class = "input" id="msg" type="text" placeholder="Input your message here..." required autocomplete="off"
-            />
-            <button class="btn"><i class="fas fa-paper-plane"></i> Send</button>
-          </form>
+            <form id="chat-form">
+                <input class="input" id="msg" type="text" placeholder="Input your message here..." required
+                    autocomplete="off" />
+                <button class="btn"><i class="fas fa-paper-plane"></i> Send</button>
+            </form>
         </div>
-      </div>
-    
-<script src = "/socket.io/socket.io.js"></script>
+    </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qs/6.10.3/qs.min.js" integrity="sha512-juaCj8zi594KHQqb92foyp87mCSriYjw3BcTHaXsAn4pEB1YWh+z+XQScMxIxzsjfM4BeVFV3Ij113lIjWiC2w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qs/6.10.3/qs.min.js"
+        integrity="sha512-juaCj8zi594KHQqb92foyp87mCSriYjw3BcTHaXsAn4pEB1YWh+z+XQScMxIxzsjfM4BeVFV3Ij113lIjWiC2w=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 
-<!--Client Side-->
-<script>
-    const chatForm = document.getElementById('chat-form');
-    const fileForm = document.getElementById('file-form');
-    const input1 = document.querySelector('input[type = "file"]');
-    const socket = io();
+    <!--Client Side-->
+    <script>
+        const chatForm = document.getElementById('chat-form');
+        const fileForm = document.getElementById('file-form');
+        const input1 = document.querySelector('input[type = "file"]');
+        const socket = io();
 
-    const { username, roomId, roomName } = Qs.parse(location.search, {
-    ignoreQueryPrefix: true,
-    });
+         function outputMessage(message) {
+            const div = document.createElement('div');
+            div.classList.add('message');
+            // div.innerHTML = `<p class="meta">Brad <span>9:12pm</span></p>
+            //     <p> ${message}</p>`;
+            div.innerHTML = `<p class="meta">${message.username} <span>${message.time}</span></p>
+            <p> ${message.text}</p>`;
 
-    if (roomId == undefined) {
-        console.log("Creating room");
-        socket.emit('createRoom', roomName, username, 1);
-    } else {
-        console.log("Joining room");
-        socket.emit('joinRoom', roomId, 1, username);
-    }
-
-    socket.on('displayRoom', (rid,rname) => {
-        console.log("Display Room:" + rid);
-        showId(rid, rname);
-    })
-
-    socket.on('roomList', users => {
-        updateList(users);
-    }) 
-    
-    const chatMessages = document.querySelector('.chat-messages');
-
-    //Message from server
-    socket.on('message', (message, filename) => {
-        if (filename){
-            message = `<a href=${message}>${filename}</a>`
-        }
-        outputMessage(message);
-        //scroll down
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    });
-
-    //Message submit
-    chatForm.addEventListener('submit', e =>{
-        e.preventDefault();
-
-        //get message
-        const msg = e.target.elements.msg.value;
-
-        //emit message to server
-        socket.emit('chatMessage', msg);
-
-        //clear input
-        e.target.elements.msg.value = '';
-        e.target.elements.msg.value.focus();
-    });
-
-    fileForm.addEventListener('submit', e =>{
-        e.preventDefault();
-
-        //get message
-        const msg = e.target.elements.filemsg.value;
-        var filename = msg.replace(/^.*[\\\/]/, '');
-        const reader = new FileReader();
-
-        //file info buffer
-        reader.onload = function (){
-            // const img = new Image();
-            // img.src = reader.result;
-            // document.body.appendChild(img);
-            let result  = reader.result;
-            console.log(result)
-            
-            socket.emit('img-file', result, filename);
-        }
-        //console.log(reader.result);
-        reader.readAsDataURL(input1.files[0]);
-        console.log("The value is: " + msg);
-
-        //emit message to server
-        function outputMessage(message){
-        const div = document.createElement('div');
-        div.classList.add('message');
-        div.innerHTML = `<a href = pictures/header.jpg download>
-                         <p>${message}</p>
-                     </a>`;
-
-        document.querySelector('.chat-messages').appendChild(div);
-    }
-
-        //clear input
-    });
-
-    //Output message to dom
-    function outputMessage(message){
-        const div = document.createElement('div');
-        div.classList.add('message');
-        div.innerHTML = `<p class="meta">Brad <span>9:12pm</span></p>
-            <p> ${message}</p>`;
-
-        document.querySelector('.chat-messages').appendChild(div);
-    }
-
-    function updateList(users) {
-
-        console.log(users);
-
-        console.log(users);
-        const list = document.getElementById('users');
-
-        while(list.hasChildNodes()) {
-            list.removeChild(list.firstChild);
+            document.querySelector('.chat-messages').appendChild(div);
         }
 
-        for(let x in users) {
-            let username = (users[x].name);
-            const new_user = document.createElement('li');
-            new_user.innerHTML = username;
-            document.getElementById('users').appendChild(new_user);
+        const {
+            username,
+            roomId,
+            roomName
+        } = Qs.parse(location.search, {
+            ignoreQueryPrefix: true,
+        });
+
+        if (roomId == undefined) {
+            console.log("Creating room");
+            socket.emit('createRoom', roomName, username, 1);
+        } else {
+            console.log("Joining room");
+            socket.emit('joinRoom', roomId, 1, username);
         }
-    }
 
-    function showId(roomId,roomName) {
-        const displayName = document.getElementById('room-name');
-        displayName.innerHTML=roomName;
-        console.log(roomName);
-        const displayId = document.getElementById('room-id');
-        displayId.innerHTML=roomId;
-    }
+        socket.on('displayRoom', (rid, rname) => {
+            console.log("Display Room:" + rid);
+            showId(rid, rname);
+        })
 
-</script>
+        socket.on('roomList', users => {
+            updateList(users);
+        })
+
+        const chatMessages = document.querySelector('.chat-messages');
+
+        //Message from server
+        socket.on('message', (message, filename) => {
+            if (filename) {
+                modifiedMessage = `<a href=${message.text}>${filename}</a>`
+                message['text'] = modifiedMessage;
+                console.log(message)
+            }
+            console.log(message)
+            outputMessage(message);
+            //scroll down
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        });
+
+        //Message submit
+        chatForm.addEventListener('submit', e => {
+            e.preventDefault();
+
+            //get message
+            const msg = e.target.elements.msg.value;
+
+            //emit message to server
+            socket.emit('chatMessage', msg);
+
+            //clear input
+            e.target.elements.msg.value = '';
+            e.target.elements.msg.value.focus();
+        });
+
+        fileForm.addEventListener('submit', e => {
+            e.preventDefault();
+
+            //get message
+            const msg = e.target.elements.filemsg.value;
+            var filename = msg.replace(/^.*[\\\/]/, '');
+            const reader = new FileReader();
+
+            //file info buffer
+            reader.onload = function () {
+                // const img = new Image();
+                // img.src = reader.result;
+                // document.body.appendChild(img);
+                let result = reader.result;
+                console.log(result)
+                socket.emit('user-file', result, filename);
+            }
+            //console.log(reader.result);
+            reader.readAsDataURL(input1.files[0]);
+            console.log("The value is: " + msg);
+
+            //emit message to server
+            function outputMessage(message) {
+                const div = document.createElement('div');
+                div.classList.add('message');
+                // div.innerHTML = `<p class="meta">Brad <span>9:12pm</span></p>
+                //     <p> ${message}</p>`;
+                div.innerHTML = `<p class="meta">${message.username} <span>${message.time}</span></p>
+            <p> ${message.text}</p>`;
+
+                document.querySelector('.chat-messages').appendChild(div);
+            }
+            //clear input
+        });
+
+        //Output message to dom
+
+        function updateList(users) {
+
+            console.log(users);
+
+            console.log(users);
+            const list = document.getElementById('users');
+
+            while (list.hasChildNodes()) {
+                list.removeChild(list.firstChild);
+            }
+
+            for (let x in users) {
+                let username = (users[x].name);
+                const new_user = document.createElement('li');
+                new_user.innerHTML = username;
+                document.getElementById('users').appendChild(new_user);
+            }
+        }
+
+        function showId(roomId, roomName) {
+            const displayName = document.getElementById('room-name');
+            displayName.innerHTML = roomName;
+            console.log(roomName);
+            const displayId = document.getElementById('room-id');
+            displayId.innerHTML = roomId;
+        }
+    </script>
 
 </body>
+
 </html>

@@ -3,9 +3,9 @@ var Schema = mongoose.Schema;
 
 var FileSchema = new Schema({
     id: String,
-    owner: String,
+    name: String,
     downloads: Number,
-    data: [String], //store as base64
+    data: String, //store as base64
 })
 
 var UserSchema = new Schema({

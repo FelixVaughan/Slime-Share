@@ -24,6 +24,14 @@ HTML, BODY { height: 100%; }
     background-size: cover;
 }
 
+.bodyViewFiles{
+    background-image: url('../pictures/greyBack.jpeg');
+    height: 100%; 
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
 .heading{
     position: absolute;
     left: 0%;
@@ -77,4 +85,18 @@ HTML, BODY { height: 100%; }
     padding-top: 2%;
     width: 15%;
     font-size: small;
+}
+
+.scrollable{
+    background-color: white;
+    height:60%;
+	width:60%;
+    margin: 20%;
+    border-radius: 5%;
+    padding: 10px;
+    box-shadow: 5px 10px 50px black;
+	/* background-color:#CCC; */		
+    overflow-y:auto;
+	float:left;
+	position:relative;
 }
