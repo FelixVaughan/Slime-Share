@@ -8,13 +8,14 @@
     <title>SlimeShare</title>
 </head>
 <body style="background-color: #C4C4C4;" class="body">
-    <form style="top: 50%; margin-left: 25%; margin-right: 25%; position: absolute; text-align: center;" id="joinRoom" action="/userchatpage">
-        <h1>Join A Room</h1>
+    <form style="top: 50%; margin-left: 25%; margin-right: 25%; position: absolute; text-align: center;" id="createRoom" action="userchatpage.html">
+        <h1>Create A Room</h1>
         <label style="text-align: left;" for="username" class="form-label">Username</label><br>
         <input size="50%" class="form-control" type="text" name="username" id="username" placeholder="Username"/><br>
-        <label style="text-align: left;" for="roomId" class="form-label">Room Id</label><br>
-        <input size="50%" class="form-control" type="text" name="roomId" id="roomId" placeholder="Room ID"><br>
-        <button class="btn btn-dark" type="submit">Join Room</button>
+        <label style="text-align: left;" for="roomName" class="form-label">Room Name</label><br>
+        <input size="50%" class="form-control" type="text" name="roomName" id="roomName" placeholder="Room Name"/><br>
+        <button class="btn btn-dark" type="submit">Create Room</button>
     </form>
+
 </body>
 </html>

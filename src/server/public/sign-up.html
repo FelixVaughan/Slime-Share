@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Slime Share Home"/> 
+    <link rel="stylesheet" href="stylesheets/joinCreatePage.css">
+    <link rel="stylesheet" href="dist/css/bootstrap.min.css"/>    
+    <title>SlimeShare Sign Up</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.26.1/axios.min.js"></script>
+    <script>
+        window.onload = async () => {
+            const serverBaseUrl = 'http://127.0.0.1:3000';
+            let signInButton = document.getElementById("signup-button");
+            let passwordBox = document.getElementById("pass");
+            let usernameBox = document.getElementById("uname");
+            signInButton.addEventListener('click', async (e) => {
+                e.preventDefault();
+                let password = passwordBox.value;
+                let username = usernameBox.value.trim();
+                //do some regex validation before sending to server
+
+                data = {
+                    'username': username,
+                    'password': password,
+                }
+                let resp = await axios.post(`${serverBaseUrl}/signUp`, data);
+                if(resp.ok === true){
+                    window.location = "http://localhost:3000/signin"
+                }
+            })
+        }
+    </script>
+</head>
+
+<body style="background-color: #C4C4C4;" class="body">
+    <div class="jumbotron">
+        <form style="top: 55%; padding-left: 20%; padding-right: 20%; position: absolute;">
+            <label for="username" class="form-label">User Name:</label>
+            <input size="50%" class="form-label" type="text" id="uname" name="username" placeholder="username"><br><br>
+            <label for="password" class="form-label">Password: &nbsp;</label>
+            <input size="50%" class="form-label" type="password" id="pass" name="password" placeholder="password"><br><br>
+            &nbsp;&nbsp;&nbsp;
+            <input class="btn btn-dark" type="submit" value="Sign Up" id="signup-button">
+        </form>
+    </div>
+</body>
+
+</html>
