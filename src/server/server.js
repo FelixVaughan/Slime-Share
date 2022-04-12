@@ -6,7 +6,11 @@ const server = http.createServer(app);
 const io = socket(server);
 const path = require('path');
 const bodyParser = require('body-parser');
+const {
+    formatMessage
+} = require('./utils')
 const mongoose = require("mongoose");
+const userBot = 'Message From Bot';
 const dotenv = require('dotenv');
 dotenv.config();
 
@@ -104,7 +108,9 @@ app.get('/saveFiles', (req, res) => {
 
 app.get('/fileMonitor', (req, res) => {
     let filename = req.query.file;
-    File.findOne({name: filename}, (err, file) => {
+    File.findOne({
+        name: filename
+    }, (err, file) => {
         if (err) console.log(err);
         else {
             if (file.downloads) file.downloads += 1;
@@ -261,9 +267,9 @@ io.on('connection', socket => {
         }
 
         if (roomExist) {
-            console.log("WOOOO!");
             let newUser = new SessionedUser(userName, roomId, socket.id, accountId);
             currentUsers.push(newUser);
+            socket.broadcast.to(newUser.roomId).emit('message', formatMessage(userBot, `${newUser.name} has joined the chat`)); // display the users that joined the chat
             socket.join(newUser.roomId);
             let usersInRoom = getRoomUsers(newUser.roomId);
 
@@ -288,22 +294,16 @@ io.on('connection', socket => {
 
     socket.on('user-file', (userfile, filename) => {
         files.push([userfile, filename]);
-        console.log(`Added ${filename} to file pile`);
-        io.emit('message', userfile, filename);
+        const user = getUser(socket.id);
+        io.emit('message', formatMessage(user.name, userfile), filename);
     })
 
     socket.on('createRoom', (roomName, userName, accountId) => {
-        //let roomNames = Object.values(rooms).map(elem => elem[0]);
-        //let roomId = generateUniqueString(Object.keys(rooms));
         let roomId = ids.toString();
         ids = ids + 1;
 
-        console.log(rooms);
-
         let newRoom = addRoom(roomId, roomName);
         rooms.push(newRoom);
-
-        console.log(rooms);
 
         const newUser = new SessionedUser(userName, roomId, socket.id, accountId);
 
@@ -319,7 +319,7 @@ io.on('connection', socket => {
 
 
 
-    socket.emit('message', 'Welcome to Slime share!');
+    socket.emit('message', 'Welcome to Slimeshare!');
 
     //Broadcast when a user connects
     socket.broadcast.emit('message', 'A user has joined the chat'); //everyone but the client
@@ -327,19 +327,27 @@ io.on('connection', socket => {
     //run when client disconnected
     socket.on('disconnect', () => {
         console.log("User disconnected");
-        // console.log(currentUsers);
         const user = getUser(socket.id);
-        // console.log(currentUsers);
-        removeUser(user.sessionId);
-        let usersInRoom = getRoomUsers(user.roomId);
-        io.to(user.roomId).emit('roomList', usersInRoom);
-        io.emit('message', 'A user has left the chat');
+        if (typeof user !== 'undefined') {
+            removeUser(user.sessionId);
+            let usersInRoom = getRoomUsers(user.roomId);
+            io.to(user.roomId).emit('roomList', usersInRoom);
+            socket.broadcast.to(user.roomId).emit('message', formatMessage(userBot, `${user.name} has left the chat`)); // display the users that joined the chat
+        }
+
+        // console.log("User disconnected");
+        // const user = getUser(socket.id);
+        // removeUser(user.sessionId);
+        // let usersInRoom = getRoomUsers(user.roomId);
+        // io.to(user.roomId).emit('roomList', usersInRoom);
+        // io.emit('message', 'A user has left the chat');
     });
 
     //Listen for chat message
     socket.on('chatMessage', (msg) => {
-
-        io.emit('message', msg);
+        const user = getUser(socket.id);
+        console.log(msg)
+        io.to(user.roomId).emit('message', formatMessage(user.name, msg)); //io.emit('message', msg);
     });
 
 
@@ -389,3 +397,15 @@ function filterUser(roomId) {
 
 
 server.listen(serverPort, () => console.log(`Server listening on port ${serverPort}`))
+
+
+//  function outputMessage(message) {
+//             const div = document.createElement('div');
+//             div.classList.add('message');
+//             div.innerHTML = `<p class="meta">Brad <span>9:12pm</span></p>
+//             <p> ${message}</p>`;
+
+//             document.querySelector('.chat-messages').appendChild(div);
+//         }
+
+//get rif of unused files
