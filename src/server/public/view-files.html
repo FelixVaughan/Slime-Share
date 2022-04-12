@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="stylesheets/joinCreatePage.css">
+    <link rel="stylesheet" href="dist/css/bootstrap.min.css"/>    
+    <title>SlimeShare</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.26.1/axios.min.js"></script>
     <script>
         window.onload = async () => {
@@ -15,7 +18,12 @@
                 let fileElement = document.createElement('a');
                 fileElement.href = file.data;
                 fileElement.text = `${file.name}(${file.downloads})`; 
-                fileElement.style.display = 'block'
+                fileElement.style.display = 'block';
+                fileElement.style.fontFamily = 'Verdana, Geneva, Tahoma, sans-serif';
+                fileElement.style.marginLeft = '10%';
+                fileElement.style.marginBottom = '2%';
+                fileElement.style.marginTop = '2%';
+                fileElement.style.fontWeight = 'bold';
                 fileElement.addEventListener('click', () => {
                     axios.get(`/fileMonitor?file=${file.name}`);
                 })
@@ -24,9 +32,9 @@
         }
     </script>
 </head>
-<body>
-    <div id="display-box">
-
+<body style="background-color: #C4C4C4; font-family: Arial, Helvetica, sans-serif;" class="bodyViewFiles">
+    <div class="scrollable" id="display-box">
+        
     </div>
 </body>
 </html>
