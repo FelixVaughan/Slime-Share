@@ -27,7 +27,7 @@ const sharedSession = require('express-socket.io-session');
 const cors = require('cors')
 let rooms = [{
     id: "1",
-    name: "room1"
+    name: "fake-room"
 }]; //Array to hold IDs of all active rooms
 let currentUsers = []; //Array to display all current users
 let files = [];
@@ -275,16 +275,11 @@ io.on('connection', socket => {
             socket.join(newUser.roomId);
             let usersInRoom = getRoomUsers(newUser.roomId);
 
-            //let userNames = Object.entries(currentUsers).map(user => user.name)
-
-            //console.log(usersInRoom);
-
             io.to(newUser.roomId).emit('roomList', usersInRoom);
             io.to(newUser.sessionId).emit('displayRoom', roomId, currentRoom.name);
 
             console.log(currentUsers);
-            // socket.broadcast.to(newUser.roomId).emit(userNames);
-            //socket.emit('intializationMessage', userNames, files);
+
             console.log('User has join a room');
 
         } else {
@@ -317,35 +312,8 @@ io.on('connection', socket => {
         io.emit('message', formatMessage(user.name, userfile), filename);
     })
 
-    // socket.on('createRoom', (roomName, userName, accountId) => {
-    //     // let roomId = ids.toString();
-    //     // ids = ids + 1;
-        
-    //     let listRoomIds = [];
-    //     listRoomIds = getRoomIds();
-    //     let roomId = generateUniqueString(listRoomIds);
 
-    //     let newRoom = addRoom(roomId, roomName);
-    //     rooms.push(newRoom);
-
-    //     const newUser = new SessionedUser(userName, roomId, socket.id, accountId);
-
-    //     currentUsers.push(newUser); //could have also used newUser.sessionId as the key.
-
-    //     let usersInRoom = getRoomUsers(newUser.roomId);
-
-    //     socket.join(newUser.roomId);
-    //     io.to(newUser.roomId).emit('roomList', usersInRoom);
-    //     console.log(roomName);
-    //     io.to(newUser.sessionId).emit('displayRoom', roomId, roomName);
-    // });
-
-
-
-    socket.emit('message', 'Welcome to Slimeshare!');
-
-    //Broadcast when a user connects
-    socket.broadcast.emit('message', 'A user has joined the chat'); //everyone but the client
+    socket.emit('message', formatMessage(userBot, 'Welcome to Slimeshare!'));
 
     //run when client disconnected
     socket.on('disconnect', () => {
@@ -357,13 +325,6 @@ io.on('connection', socket => {
             io.to(user.roomId).emit('roomList', usersInRoom);
             socket.broadcast.to(user.roomId).emit('message', formatMessage(userBot, `${user.name} has left the chat`)); // display the users that joined the chat
         }
-
-        // console.log("User disconnected");
-        // const user = getUser(socket.id);
-        // removeUser(user.sessionId);
-        // let usersInRoom = getRoomUsers(user.roomId);
-        // io.to(user.roomId).emit('roomList', usersInRoom);
-        // io.emit('message', 'A user has left the chat');
     });
 
     //Listen for chat message
