@@ -17,6 +17,18 @@ let generateUniqueString = (cannotInclude) => {
     return null;
 }
 
+let generateUniqueName = (users) => { 
+    adjs = ["amazing", "tired", "annoying", "cynical", "upset", "sophisticated"];
+    nouns = ["apartment", "school", "planet", "skyscraper", "bathroom", "country"];
+    connectors = ["_"," ","-"];
+    let trys = 0;
+    while(trys++ <= 35){
+        let potentialName = adjs[Math.floor(Math.random() * adjs.length)] + connectors[Math.floor(Math.random() * connectors.length)] + nouns[Math.floor(Math.random()*nouns.length)];
+        if(!users.includes(potentialName)){
+            return potentialName;
+        }
+    }
+}
 
 function formatMessage(username, text){
     return{
@@ -28,4 +40,4 @@ function formatMessage(username, text){
 }
 
 
-module.exports = {generateUniqueString, formatMessage}
+module.exports = {generateUniqueString, formatMessage, generateUniqueName}

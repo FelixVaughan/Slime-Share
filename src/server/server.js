@@ -30,7 +30,6 @@ let rooms = [{
     name: "room1"
 }]; //Array to hold IDs of all active rooms
 let currentUsers = []; //Array to display all current users
-let ids = 2;
 let files = [];
 
 io.use(sharedSession(session, {
@@ -40,6 +39,9 @@ io.use(sharedSession(session, {
 let {
     generateUniqueString
 } = require('./utils');
+
+let { generateUniqueName } = require ('./utils');
+
 let {
     User,
     File
@@ -286,10 +288,27 @@ io.on('connection', socket => {
             console.log('User has join a room');
 
         } else {
-            console.log("Failure");
-            //Maybe prompt the user?
-        }
+            let listRoomIds = [];
+            listRoomIds = getRoomIds();
+            let roomId = generateUniqueString(listRoomIds);
 
+            let allUsers = getAllUsers();
+            let roomName = generateUniqueName(allUsers);
+
+            let newRoom = addRoom(roomId, roomName);
+            rooms.push(newRoom);
+
+            const newUser = new SessionedUser(userName, roomId, socket.id, accountId);
+
+            currentUsers.push(newUser); //could have also used newUser.sessionId as the key.
+
+            let usersInRoom = getRoomUsers(newUser.roomId);
+
+            socket.join(newUser.roomId);
+            io.to(newUser.roomId).emit('roomList', usersInRoom);
+            //console.log(roomName);
+            io.to(newUser.sessionId).emit('displayRoom', roomId, roomName);
+            }
     });
 
     socket.on('user-file', (userfile, filename) => {
@@ -298,24 +317,28 @@ io.on('connection', socket => {
         io.emit('message', formatMessage(user.name, userfile), filename);
     })
 
-    socket.on('createRoom', (roomName, userName, accountId) => {
-        let roomId = ids.toString();
-        ids = ids + 1;
+    // socket.on('createRoom', (roomName, userName, accountId) => {
+    //     // let roomId = ids.toString();
+    //     // ids = ids + 1;
+        
+    //     let listRoomIds = [];
+    //     listRoomIds = getRoomIds();
+    //     let roomId = generateUniqueString(listRoomIds);
 
-        let newRoom = addRoom(roomId, roomName);
-        rooms.push(newRoom);
+    //     let newRoom = addRoom(roomId, roomName);
+    //     rooms.push(newRoom);
 
-        const newUser = new SessionedUser(userName, roomId, socket.id, accountId);
+    //     const newUser = new SessionedUser(userName, roomId, socket.id, accountId);
 
-        currentUsers.push(newUser); //could have also used newUser.sessionId as the key.
+    //     currentUsers.push(newUser); //could have also used newUser.sessionId as the key.
 
-        let usersInRoom = getRoomUsers(newUser.roomId);
+    //     let usersInRoom = getRoomUsers(newUser.roomId);
 
-        socket.join(newUser.roomId);
-        io.to(newUser.roomId).emit('roomList', usersInRoom);
-        console.log(roomName);
-        io.to(newUser.sessionId).emit('displayRoom', roomId, roomName);
-    });
+    //     socket.join(newUser.roomId);
+    //     io.to(newUser.roomId).emit('roomList', usersInRoom);
+    //     console.log(roomName);
+    //     io.to(newUser.sessionId).emit('displayRoom', roomId, roomName);
+    // });
 
 
 
@@ -360,7 +383,7 @@ function getRoomUsers(room) {
     return currentUsers.filter(user => user.roomId === room);
 }
 
-function addRoom(id, name) {
+function addRoom(id,name) {
     return {
         id,
         name
@@ -389,6 +412,22 @@ function removeUser(id) {
     currentUsers.splice(index, 1); //Remove the user from that index.
 }
 
+function getRoomIds() {
+    let temp = [];
+    for (let x in rooms) {
+        temp.push(rooms[x].id);
+    }
+    return temp;
+}
+
+function getAllUsers() {
+    let temp = [];
+    for (let x in currentUsers) {
+        temp.push(currentUsers[x].name);
+    }
+    return temp;
+}
+
 //This function should filter out users that match the room ID that is passed in, and return an array of those users.
 function filterUser(roomId) {
     let userList = [];
@@ -397,15 +436,5 @@ function filterUser(roomId) {
 
 
 server.listen(serverPort, () => console.log(`Server listening on port ${serverPort}`))
-
-
-//  function outputMessage(message) {
-//             const div = document.createElement('div');
-//             div.classList.add('message');
-//             div.innerHTML = `<p class="meta">Brad <span>9:12pm</span></p>
-//             <p> ${message}</p>`;
-
-//             document.querySelector('.chat-messages').appendChild(div);
-//         }
 
 //get rif of unused files
