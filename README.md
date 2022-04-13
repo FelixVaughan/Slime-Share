@@ -15,3 +15,11 @@ MONGOOSE_ADDR="mongodb://localhost:27017"
 SESSION_KEY="hyjwwcB4wM2baNIO7Die"
 
 2. If this error appears: "Cannot find module 'express'" or any similar issue, delete the node_modules folder, and run "npm i" in the terminal after the node_modules folder is deleted.
+
+
+
+After running, successfully, the terminal should say "Server listening on port 3000"
+
+Go to your browser of choice and go to http://localhost:3000/.
+
+You will be redirected to the main screen, where there will be a button to join a room.
