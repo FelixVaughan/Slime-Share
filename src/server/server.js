@@ -309,7 +309,7 @@ io.on('connection', socket => {
     socket.on('user-file', (userfile, filename) => {
         files.push([userfile, filename]);
         const user = getUser(socket.id);
-        io.emit('message', formatMessage(user.name, userfile), filename);
+        io.to(user.roomId).emit('message', formatMessage(user.name, userfile), filename);
     })
 
 
